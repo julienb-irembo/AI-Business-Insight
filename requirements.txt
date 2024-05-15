@@ -1,0 +1,8 @@
+streamlit
+openai
+watchdog
+pandas
+numpy
+scipy
+typing
+sqlparse
