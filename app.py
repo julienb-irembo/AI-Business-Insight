@@ -94,7 +94,7 @@ def displayAssistantMessage( assistantMessage: AssistantMessage ):
         if assistantMessage.response_data.columns.size == 1:
             st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
         if assistantMessage.response_data.columns.size > 3:
-            st.table(assistantMessage.response_data)           
+            st.write(assistantMessage.response_data)           
 
 # prompts suggestions
 selected = pills("Suggestions", ["List all pending applications", "List all approved applications", "This months application stats", "Provide a list of all today\'s applications"], clearable=True, index=None)
