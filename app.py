@@ -20,10 +20,15 @@ openai_key = st.secrets["OpenAI_key"]
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
 logo = "img/irembo-gov.svg"
-approved = run_query("SELECT COUNT(*) FROM application WHERE state = 'APPROVED';" ).values[0][0]
-pending = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_PAYMENT';" ).values[0][0]
-rejected = run_query("SELECT COUNT(*) FROM application WHERE state = 'REJECTED';" ).values[0][0]
-rfa = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_RESUBMISSION';" ).values[0][0]
+# approved = run_query("SELECT COUNT(*) FROM application WHERE state = 'CLOSED_WITH_APPROVAL';" ).values[0][0]
+# pending = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_APPROVAL';" ).values[0][0]
+# rejected = run_query("SELECT COUNT(*) FROM application WHERE state = 'CLOSED_WITH_REJECTED';" ).values[0][0]
+# rfa = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_RESUBMISSION';" ).values[0][0]
+
+approved=0
+pending=0
+rejected=0
+rfa=0
 
 def dashboard_cards():
     st.markdown(
