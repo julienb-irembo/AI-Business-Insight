@@ -85,7 +85,7 @@ def displayAssistantMessage( assistantMessage: AssistantMessage ):
         if assistantMessage.response_data.columns.size == 1:
             st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
         if assistantMessage.response_data.columns.size > 3:
-            st.table(assistantMessage.response_data)           
+            st.write(assistantMessage.response_data)           
 
 
 # Initialize chat history
