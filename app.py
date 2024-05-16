@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from app_config import *
 from app_access_db import *
+from streamlit_pills import pills
 
 
 
@@ -18,10 +19,10 @@ openai_key = st.secrets["OpenAI_key"]
 # ------------------------------------------------------------------------------------------------
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
+logo = "img/irembo-gov.svg"
 with st.sidebar:
-    with st.empty():
-        st.image("img/irembo-gov.svg", )
-
+    st.markdown(f'<img src="https://rtn.rw/wp-content/uploads/2019/07/irembo-300x83.png" style="position: fixed; top: 0;width:180px ;text-align: left; padding-top: 20px;"/>', unsafe_allow_html=True)
+    st.markdown('#')
     # Today history
     st.subheader(":blue[Approved applications ]")
     st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'APPROVED';" ).values[0][0])
@@ -29,6 +30,7 @@ with st.sidebar:
     st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_PAYMENT';" ).values[0][0])
     st.subheader(":blue[Rejected applications ]")
     st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'REJECTED';" ).values[0][0])
+    st.markdown('<div style="position: fixed; bottom: 0; text-align: left; padding-bottom: 20px">Version 0.0.1</div>', unsafe_allow_html=True)
 
     if openai_key is not None and openai_key != '':
             print('Key was added successfully')
@@ -43,8 +45,15 @@ with st.sidebar:
 
 # st.title('Irembo Business Insights AI Assistant')
 # st.write(f'Ask any question that can be answer by the LLM {model}.')
+image = "img/favicon.png"
 name = "Officer"
-st.title('Welcome back, ' + name)
+
+
+col1, col2 = st.columns([1, 6]) 
+with col1:
+    st.image(image, width=80)
+with col2:
+    st.title('Welcome back, ' + name)
 
 
 
@@ -87,6 +96,15 @@ def displayAssistantMessage( assistantMessage: AssistantMessage ):
         if assistantMessage.response_data.columns.size > 3:
             st.table(assistantMessage.response_data)           
 
+# prompts suggestions
+selected = pills("Suggestions", ["List all pending applications", "List all approved applications", "This months application stats", "Provide a list of all today\'s applications"], clearable=True, index=None)
+
+if selected:
+ response = askQuestion(question=selected)
+ assistanMsg = AssistantMessage()
+ assistanMsg.response_data = response
+ st.session_state.messages.append({"role": "assistant", "content": assistanMsg})
+ status.update(label='Response of last question', state="complete", expanded=True)
 
 # Initialize chat history
 if "messages" not in st.session_state:
