@@ -118,13 +118,13 @@ def displayAssistantMessage( assistantMessage: AssistantMessage ):
             st.write(assistantMessage.response_data)
         else:
             st.write(assistantMessage.response_data)
-    if hasattr(assistantMessage.response_data, 'columns'):
-        if assistantMessage.response_data.columns.size == 2:
-            st.bar_chart(assistantMessage.response_data, x=assistantMessage.response_data.columns[0], y=assistantMessage.response_data.columns[1])
-        if assistantMessage.response_data.columns.size == 1:
-            st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
-        if assistantMessage.response_data.columns.size > 3:
-            st.table(assistantMessage.response_data)           
+    # if hasattr(assistantMessage.response_data, 'columns'):
+    #     if assistantMessage.response_data.columns.size == 2:
+    #         st.bar_chart(assistantMessage.response_data, x=assistantMessage.response_data.columns[0], y=assistantMessage.response_data.columns[1])
+    #     if assistantMessage.response_data.columns.size == 1:
+    #         st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
+    #     if assistantMessage.response_data.columns.size > 3:
+    #         st.table(assistantMessage.response_data)           
 
 # Initialize chat history
 if "messages" not in st.session_state:
