@@ -20,15 +20,13 @@ openai_key = st.secrets["OpenAI_key"]
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
 logo = "img/irembo-gov.svg"
-# approved = run_query("SELECT COUNT(*) FROM application WHERE state = 'CLOSED_WITH_APPROVAL';" ).values[0][0]
-# pending = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_APPROVAL';" ).values[0][0]
-# rejected = run_query("SELECT COUNT(*) FROM application WHERE state = 'CLOSED_WITH_REJECTED';" ).values[0][0]
-# rfa = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_RESUBMISSION';" ).values[0][0]
+approved = run_query("SELECT COUNT(*) AS approved_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_APPROVAL';" ).values[0][0]
+pending = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_APPROVAL';" ).values[0][0]
+rejected = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_REJECTED';" ).values[0][0]
+rfa = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_RESUBMISSION';" ).values[0][0]
 
-approved=0
-pending=0
-rejected=0
-rfa=0
+
+
 
 def dashboard_cards():
     st.markdown(
