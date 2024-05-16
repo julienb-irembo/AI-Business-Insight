@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from app_config import *
 from app_access_db import *
+from streamlit_pills import pills
 
 
 
@@ -18,33 +19,74 @@ openai_key = st.secrets["OpenAI_key"]
 # ------------------------------------------------------------------------------------------------
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
-with st.sidebar:
-    with st.empty():
-        st.image("img/irembo-gov.svg", )
+logo = "img/irembo-gov.svg"
+approved = run_query("SELECT COUNT(*) AS approved_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_APPROVAL';" ).values[0][0]
+pending = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_APPROVAL';" ).values[0][0]
+rejected = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_REJECTED';" ).values[0][0]
+rfa = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_RESUBMISSION';" ).values[0][0]
 
+
+
+
+def dashboard_cards():
+    st.markdown(
+        f"""
+        <div style="display:flex; gap:20px; margin-bottom:20px; margin-top:20px;">
+            <div style='background-color: #ffffff; padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000; font-size:13px; text-align:center;'>Approved</span>
+                <h1 style='color: #0f996d; font-size:36px; text-align:center;'>{approved}</h1>
+            </div>
+            <div style='background-color: #ffffff;  padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000; font-size:13px; text-align:center;'>Request for action</span>
+                <h1 style='color: #106ddc; font-size:36px; text-align:center;'>{rfa}</h1>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"""
+        <div style="display:flex; gap:20px;">
+            <div style='background-color: #ffffff;  padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000;font-size:13px; text-align:center;'>Pending</span>
+                <h1 style='color: #ffc107; font-size:36px; text-align:center;'>{pending}</h1>
+            </div>
+            <div style='background-color: #ffffff;  padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000; font-size:13px; text-align:center;'>Rejected</span>
+                <h1 style='color: #dc3545; font-size:36px; text-align:center;'>{rejected}</h1>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+with st.sidebar:
+    st.markdown(f'<img src="https://rtn.rw/wp-content/uploads/2019/07/irembo-300x83.png" style="position: fixed; top: 0;width:180px ;text-align: left; padding-top: 20px;"/>', unsafe_allow_html=True)
+    st.markdown('#')
     # Today history
-    st.subheader(":blue[Approved applications ]")
-    st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'APPROVED';" ).values[0][0])
-    st.subheader(":blue[Pending applications ]")
-    st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_PAYMENT';" ).values[0][0])
-    st.subheader(":blue[Rejected applications ]")
-    st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'REJECTED';" ).values[0][0])
+    st.header(":blue[Application statistics]")
+    dashboard_cards()
 
     if openai_key is not None and openai_key != '':
             print('Key was added successfully')
     else:
         st.sidebar.error('No key found please add it in the secrets', icon="❌")
-    
+    st.markdown('<div style="position: fixed; bottom: 0; text-align: left; padding-bottom: 20px">Version 0.0.1</div>', unsafe_allow_html=True)
 
 
 # ------------------------------------------------------------------------------------------------
 # CHAT
 # ------------------------------------------------------------------------------------------------
 
-# st.title('Irembo Business Insights AI Assistant')
-# st.write(f'Ask any question that can be answer by the LLM {model}.')
+image = "img/favicon.png"
 name = "Officer"
-st.title('Welcome back, ' + name)
+
+
+col1, col2 = st.columns([1, 6]) 
+with col1:
+    st.image(image, width=80)
+with col2:
+    st.title('Welcome back, ' + name)
 
 
 
@@ -76,17 +118,16 @@ class AssistantMessage:
 def displayAssistantMessage( assistantMessage: AssistantMessage ):
     with st.chat_message("assistant", avatar="img/favicon.png"):
         if isinstance(assistantMessage.response_data, str):
-            st.text(assistantMessage.response_data)
+            st.write(assistantMessage.response_data)
         else:
-            st.code(assistantMessage.response_data, language='markdown')
-    if hasattr(assistantMessage.response_data, 'columns'):
-        if assistantMessage.response_data.columns.size == 2:
-            st.bar_chart(assistantMessage.response_data, x=assistantMessage.response_data.columns[0], y=assistantMessage.response_data.columns[1])
-        if assistantMessage.response_data.columns.size == 1:
-            st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
-        if assistantMessage.response_data.columns.size > 3:
-            st.table(assistantMessage.response_data)           
-
+            st.write(assistantMessage.response_data)
+    # if hasattr(assistantMessage.response_data, 'columns'):
+    #     if assistantMessage.response_data.columns.size == 2:
+    #         st.bar_chart(assistantMessage.response_data, x=assistantMessage.response_data.columns[0], y=assistantMessage.response_data.columns[1])
+    #     if assistantMessage.response_data.columns.size == 1:
+    #         st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
+    #     if assistantMessage.response_data.columns.size > 3:
+    #         st.table(assistantMessage.response_data)           
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -100,8 +141,15 @@ for message in st.session_state.messages:
     elif message["role"] == "assistant":
         displayAssistantMessage(message["content"])
 
+# Displaying chat description
+if not st.session_state.messages:
+        st.markdown(f'<p style="font-size:18px; text-align:center; margin-top:50px; ">I specialize in providing business insights and assisting with various applications. Feel free to ask me anything related to these topics.</p>', unsafe_allow_html=True)
+else:
+    st.markdown("#")
+
 # React to user input
 if prompt := st.chat_input("Ask me any question about business at Irembo?"):
+    description = None
     with st.status('Running', expanded=True) as status:
         # Display user message in chat message container
         st.chat_message("user").markdown(prompt)
