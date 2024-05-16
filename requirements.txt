@@ -7,3 +7,4 @@ scipy
 typing
 sqlparse
 streamlit_pills
+psycopg2-binary
