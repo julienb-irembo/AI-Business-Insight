@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from app_config import *
 from app_access_db import *
+from streamlit_pills import pills
 
 
 
@@ -18,17 +19,52 @@ openai_key = st.secrets["OpenAI_key"]
 # ------------------------------------------------------------------------------------------------
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
-with st.sidebar:
-    with st.empty():
-        st.image("img/irembo-gov.svg", )
+logo = "img/irembo-gov.svg"
+# Sidebar Statistics
+approved = run_query("SELECT COUNT(*) FROM application WHERE state = 'APPROVED';" ).values[0][0]
+pending = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_PAYMENT';" ).values[0][0]
+rejected = run_query("SELECT COUNT(*) FROM application WHERE state = 'REJECTED';" ).values[0][0]
+rfa = run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_RESUBMISSION';" ).values[0][0]
 
+# Sidebar cards to display stats
+def dashboard_cards():
+    st.markdown(
+        f"""
+        <div style="display:flex; gap:20px; margin-bottom:20px; margin-top:20px;">
+            <div style='background-color: #ffffff; padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000; font-size:13px; text-align:center;'>Approved</span>
+                <h1 style='color: #0f996d; font-size:36px; text-align:center;'>{approved}</h1>
+            </div>
+            <div style='background-color: #ffffff;  padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000; font-size:13px; text-align:center;'>Request for action</span>
+                <h1 style='color: #106ddc; font-size:36px; text-align:center;'>{rfa}</h1>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"""
+        <div style="display:flex; gap:20px; margin-bottom:20px">
+            <div style='background-color: #ffffff;  padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000;font-size:13px; text-align:center;'>Pending</span>
+                <h1 style='color: #ffc107; font-size:36px; text-align:center;'>{pending}</h1>
+            </div>
+            <div style='background-color: #ffffff;  padding: 20px; border-radius: 10px; width:50%; display:grid; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <span style='color: #000000; font-size:13px; text-align:center;'>Rejected</span>
+                <h1 style='color: #dc3545; font-size:36px; text-align:center;'>{rejected}</h1>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+with st.sidebar:
+    st.markdown(f'<img src="https://rtn.rw/wp-content/uploads/2019/07/irembo-300x83.png" style="position: fixed; top: 0;width:180px ;text-align: left; padding-top: 20px;"/>', unsafe_allow_html=True)
+    st.markdown('#')
     # Today history
-    st.subheader(":blue[Approved applications ]")
-    st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'APPROVED';" ).values[0][0])
-    st.subheader(":blue[Pending applications ]")
-    st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'PENDING_PAYMENT';" ).values[0][0])
-    st.subheader(":blue[Rejected applications ]")
-    st.subheader(run_query("SELECT COUNT(*) FROM application WHERE state = 'REJECTED';" ).values[0][0])
+    st.header(":blue[Application statistics]")
+    dashboard_cards()
 
     if openai_key is not None and openai_key != '':
             print('Key was added successfully')
@@ -43,8 +79,15 @@ with st.sidebar:
 
 # st.title('Irembo Business Insights AI Assistant')
 # st.write(f'Ask any question that can be answer by the LLM {model}.')
+image = "img/favicon.png"
 name = "Officer"
-st.title('Welcome back, ' + name)
+
+
+col1, col2 = st.columns([1, 6]) 
+with col1:
+    st.image(image, width=80)
+with col2:
+    st.title('Welcome back, ' + name)
 
 
 
