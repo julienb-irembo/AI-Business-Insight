@@ -6,3 +6,4 @@ numpy
 scipy
 typing
 sqlparse
+streamlit_pills
