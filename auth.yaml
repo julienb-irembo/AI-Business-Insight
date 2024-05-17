@@ -1,0 +1,15 @@
+credentials:
+  usernames:
+    lena:
+      email: tetalenaaa@gmail.com
+      name: Teta lena
+      password: teta123
+    teta:
+      email: tetalenaa@gmail.com
+      name: Teta Ishimwe
+      password: lena123
+
+cookie:
+  expiry_days: 30
+  key: r20202jdnskfdjfdklfa # Must be string
+  name: appcookie

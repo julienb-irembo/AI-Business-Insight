@@ -2,8 +2,12 @@ import streamlit as st
 from openai import OpenAI
 from app_config import *
 from app_access_db import *
+import streamlit_authenticator as stauth
 
-
+import yaml
+from yaml.loader import SafeLoader
+with open('auth.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
 
 # model = "gpt-3.5-turbo"
 model = "gpt-4-turbo"
@@ -13,8 +17,26 @@ gpt_base_url = None
 
 openai_key = st.secrets["OpenAI_key"]
 
+#---- USER AUTHENTICATION ---
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days'],
+)
+name, authentication_status, username = authenticator.login('main', fields = {'Form name': 'Login'})
+profile_picture_url = "https://via.placeholder.com/150"
+
+if authentication_status == False:
+   st.error("Username/password is incorrect")
+
+if authentication_status == None:
+   st.error("Please enter your username and password")
 
 
+if authentication_status:
+ email = config['credentials']['usernames'][username]['email']
+  
 # ------------------------------------------------------------------------------------------------
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
@@ -34,8 +56,24 @@ with st.sidebar:
             print('Key was added successfully')
     else:
         st.sidebar.error('No key found please add it in the secrets', icon="❌")
-    
+    st.markdown("#")
+    profile_container = st.container()
+    with profile_container:
+           col1, col2, col3 = st.columns([1, 2, 2])
 
+    with col1:
+            st.image(profile_picture_url, width=50)
+
+    with col2:
+            st.markdown(f"""
+                <div style="display: flex; flex-direction: column;">
+                    <div style="font-size: 18px; color: darkblue; font-weight: bold;">{name}</div>
+                    <div style="font-size: 14px; color: gray;">{email}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    with col3:
+            authenticator.logout("Logout", "main")
 
 # ------------------------------------------------------------------------------------------------
 # CHAT
@@ -43,8 +81,8 @@ with st.sidebar:
 
 # st.title('Irembo Business Insights AI Assistant')
 # st.write(f'Ask any question that can be answer by the LLM {model}.')
-name = "Officer"
-st.title('Welcome back, ' + name)
+
+st.title(f'Welcome back, {name}')
 
 
 
