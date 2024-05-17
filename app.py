@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 from app_config import *
 from app_access_db import *
+import pandas as pd
 
 
 
@@ -72,20 +73,48 @@ class AssistantMessage:
         self.response_data : DataFrame
 
 
-
-def displayAssistantMessage( assistantMessage: AssistantMessage ):
+def displayAssistantMessage(assistantMessage: AssistantMessage, chart_type: str):
+    print(chart_type)
     with st.chat_message("assistant", avatar="img/favicon.png"):
         if isinstance(assistantMessage.response_data, str):
             st.text(assistantMessage.response_data)
         else:
-            st.code(assistantMessage.response_data, language='markdown')
-    if hasattr(assistantMessage.response_data, 'columns'):
-        if assistantMessage.response_data.columns.size == 2:
-            st.bar_chart(assistantMessage.response_data, x=assistantMessage.response_data.columns[0], y=assistantMessage.response_data.columns[1])
-        if assistantMessage.response_data.columns.size == 1:
-            st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
-        if assistantMessage.response_data.columns.size > 3:
-            st.write(assistantMessage.response_data)           
+            data = assistantMessage.response_data
+            # Determine if the data is suitable for the selected chart type
+            if chart_type == "table":
+                st.write(data)
+            else:  # Check chart compatibility
+                if not isinstance(data, pd.DataFrame):
+                    try:
+                        data = pd.DataFrame(data)
+                    except Exception as e:
+                        st.error(f"Error converting data to DataFrame: {e}")
+                        return
+
+                try:
+                    # Basic checks for chart compatibility
+                    if chart_type in ["bar_chart", "line_chart", "area_chart"]:
+                        if len(data.columns) < 2:
+                            raise ValueError("Insufficient columns for a chart.")
+                        
+                        # Check for numeric data types in all value columns
+                        numeric_columns = data.select_dtypes(include='number').columns
+                        if len(numeric_columns) == 0:
+                            raise TypeError("No numeric columns found for the chart.")
+                        
+                        # Display chart if it passes the checks
+                        if chart_type == "bar_chart":
+                            st.bar_chart(data[numeric_columns])  # Use numeric columns only
+                        elif chart_type == "line_chart":
+                            st.line_chart(data[numeric_columns])
+                        elif chart_type == "area_chart":
+                            st.area_chart(data[numeric_columns])
+
+                except (ValueError, TypeError) as e:
+                    # Display warning message as a pop-up
+                    st.warning(f"Data not suitable for {chart_type}: {e}")
+                    # Optionally, display the data in a table instead
+                    st.write(data)
 
 
 # Initialize chat history
@@ -98,10 +127,21 @@ for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
     elif message["role"] == "assistant":
-        displayAssistantMessage(message["content"])
+        displayAssistantMessage(message["content"], chart_type=message.get("chart_type", "table"))
+
+# Displaying chat description
+if not st.session_state.messages:
+        st.markdown(f'<p style="font-size:18px; text-align:center; margin-top:50px; ">I specialize in providing business insights and assisting with various applications. Feel free to ask me anything related to these topics.</p>', unsafe_allow_html=True)
+else:
+    st.markdown("#")
+
+#Select chart type
+chart_types = ["table", "bar_chart", "line_chart", "area_chart"]
+selected_chart = st.selectbox("Select Chart Type", chart_types)
 
 # React to user input
 if prompt := st.chat_input("Ask me any question about business at Irembo?"):
+    description = None
     with st.status('Running', expanded=True) as status:
         # Display user message in chat message container
         st.chat_message("user").markdown(prompt)
@@ -117,7 +157,7 @@ if prompt := st.chat_input("Ask me any question about business at Irembo?"):
             # Display assistant response in chat message container
             assistanMsg = AssistantMessage()
             assistanMsg.response_data = response
-            st.session_state.messages.append({"role": "assistant", "content": assistanMsg})
+            st.session_state.messages.append({"role": "assistant", "content": assistanMsg, "chart_type": selected_chart})
             status.update(label='Response of last question', state="complete", expanded=True)
         elif is_query:
             try:
@@ -125,15 +165,16 @@ if prompt := st.chat_input("Ask me any question about business at Irembo?"):
                 # Display assistant response in chat message container
                 assistanMsg = AssistantMessage()
                 assistanMsg.response_data = response_data
-                displayAssistantMessage(assistanMsg)
+                displayAssistantMessage(assistanMsg, chart_type=selected_chart)
                 # Add assistant response to chat history
-                st.session_state.messages.append({"role": "assistant", "content": assistanMsg})
+                st.session_state.messages.append({"role": "assistant", "content": assistanMsg, "chart_type": selected_chart})
                 status.update(label='Response of last question', state="complete", expanded=True)
             except Exception as e:
                 error_message = "Am sorry I can't process your request right now. Please ask me another question."
                 with st.chat_message("assistant", avatar="img/favicon.png"):
                     st.error(error_message)
+                print(e)
                 assistanMsg = AssistantMessage()
                 assistanMsg.response_data = error_message
-                st.session_state.messages.append({"role": "assistant", "content": assistanMsg})
+                st.session_state.messages.append({"role": "assistant", "content": assistanMsg, "chart_type": selected_chart})
                 status.update(label='Error', state="error", expanded=True)
