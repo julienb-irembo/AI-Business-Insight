@@ -8,7 +8,10 @@ credentials:
       email: tetalenaa@gmail.com
       name: Teta Ishimwe
       password: lena123
-
+    admin:
+      email: admin@irembo.com
+      name: Admin
+      password: ""
 cookie:
   expiry_days: 30
   key: r20202jdnskfdjfdklfa # Must be string
