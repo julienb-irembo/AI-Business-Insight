@@ -6,3 +6,4 @@ irembo_application.db
 irembo_application_2.db
 irembo_application_3.db
 tables.toml
+.streamlit/secrets.toml
