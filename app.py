@@ -2,9 +2,12 @@ import streamlit as st
 from openai import OpenAI
 from app_config import *
 from app_access_db import *
+import streamlit_authenticator as stauth
 from streamlit_pills import pills
-
-
+import yaml
+from yaml.loader import SafeLoader
+with open('auth.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
 
 # model = "gpt-3.5-turbo"
 model = "gpt-4-turbo"
@@ -14,21 +17,39 @@ gpt_base_url = None
 
 openai_key = st.secrets["OpenAI_key"]
 
+#---- USER AUTHENTICATION ---
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days'],
+)
+name, authentication_status, username = authenticator.login('main', fields = {'Form name': 'Login'})
+profile_picture_url = "https://via.placeholder.com/150"
+
+if authentication_status == False:
+   st.error("Username/password is incorrect")
+
+if authentication_status == None:
+   st.error("Please enter your username and password")
 
 
+if authentication_status:
+ email = config['credentials']['usernames'][username]['email']
+  
 # ------------------------------------------------------------------------------------------------
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
-logo = "img/irembo-gov.svg"
-approved = run_query("SELECT COUNT(*) AS approved_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_APPROVAL';" ).values[0][0]
-pending = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_APPROVAL';" ).values[0][0]
-rejected = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_REJECTED';" ).values[0][0]
-rfa = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_RESUBMISSION';" ).values[0][0]
+ logo = "img/irembo-gov.svg"
+ approved = run_query("SELECT COUNT(*) AS approved_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_APPROVAL';" ).values[0][0]
+ pending = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_APPROVAL';" ).values[0][0]
+ rejected = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'CLOSED_WITH_REJECTED';" ).values[0][0]
+ rfa = run_query("SELECT COUNT(*) AS pending_applications_count FROM application JOIN application_state ON application.application_state = application_state.id WHERE application_state.state_code = 'PENDING_RESUBMISSION';" ).values[0][0]
 
 
 
 
-def dashboard_cards():
+ def dashboard_cards():
     st.markdown(
         f"""
         <div style="display:flex; gap:20px; margin-bottom:20px; margin-top:20px;">
@@ -60,7 +81,7 @@ def dashboard_cards():
         unsafe_allow_html=True
     )
     
-with st.sidebar:
+ with st.sidebar:
     st.markdown(f'<img src="https://rtn.rw/wp-content/uploads/2019/07/irembo-300x83.png" style="position: fixed; top: 0;width:180px ;text-align: left; padding-top: 20px;"/>', unsafe_allow_html=True)
     st.markdown('#')
     # Today history
@@ -71,26 +92,38 @@ with st.sidebar:
             print('Key was added successfully')
     else:
         st.sidebar.error('No key found please add it in the secrets', icon="❌")
-    st.markdown('<div style="position: fixed; bottom: 0; text-align: left; padding-bottom: 20px">Version 0.0.1</div>', unsafe_allow_html=True)
+    st.markdown("#")
+    profile_container = st.container()
+    with profile_container:
+           col1, col2, col3 = st.columns([1, 2, 2])
 
+    with col1:
+            st.image(profile_picture_url, width=50)
+
+    with col2:
+            st.markdown(f"""
+                <div style="display: flex; flex-direction: column;">
+                    <div style="font-size: 18px; color: darkblue; font-weight: bold;">{name}</div>
+                    <div style="font-size: 14px; color: gray;">{email}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    with col3:
+            authenticator.logout("Logout", "main")
+    st.markdown('<div style="position: fixed; bottom: 0; text-align: left; padding-bottom: 20px">Version 0.0.1</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------------------------
 # CHAT
 # ------------------------------------------------------------------------------------------------
 
-image = "img/favicon.png"
-name = "Officer"
+# st.title('Irembo Business Insights AI Assistant')
+# st.write(f'Ask any question that can be answer by the LLM {model}.')
 
-
-col1, col2 = st.columns([1, 6]) 
-with col1:
-    st.image(image, width=80)
-with col2:
-    st.title('Welcome back, ' + name)
+ st.title(f'Welcome back, {name}')
 
 
 
-def askQuestion(model=model, question=''):
+ def askQuestion(model=model, question=''):
     if(openai_key == None or openai_key==''):
         print('Please provide the key before')
         return 'LLM API is not defined. Please provide the key before'
@@ -108,14 +141,14 @@ def askQuestion(model=model, question=''):
         )              
         return completion.choices[0].message.content
 
-class AssistantMessage:
+ class AssistantMessage:
     def __init__(self):
         self.sql : str
         self.response_data : DataFrame
 
 
 
-def displayAssistantMessage( assistantMessage: AssistantMessage ):
+ def displayAssistantMessage( assistantMessage: AssistantMessage ):
     with st.chat_message("assistant", avatar="img/favicon.png"):
         if isinstance(assistantMessage.response_data, str):
             st.write(assistantMessage.response_data)
@@ -130,11 +163,11 @@ def displayAssistantMessage( assistantMessage: AssistantMessage ):
     #         st.table(assistantMessage.response_data)           
 
 # Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+ if "messages" not in st.session_state:
+     st.session_state.messages = []
 
 # Display chat messages from history on app rerun
-for message in st.session_state.messages:
+ for message in st.session_state.messages:
     if message["role"] == "user":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
@@ -142,15 +175,15 @@ for message in st.session_state.messages:
         displayAssistantMessage(message["content"])
 
 # Displaying chat description
-if not st.session_state.messages:
+ if not st.session_state.messages:
         st.markdown(f'<p style="font-size:18px; text-align:center; margin-top:50px; ">I specialize in providing business insights and assisting with various applications. Feel free to ask me anything related to these topics.</p>', unsafe_allow_html=True)
-else:
+ else:
     st.markdown("#")
 
 # React to user input
-if prompt := st.chat_input("Ask me any question about business at Irembo?"):
-    description = None
-    with st.status('Running', expanded=True) as status:
+ if prompt := st.chat_input("Ask me any question about business at Irembo?"):
+     description = None
+     with st.status('Running', expanded=True) as status:
         # Display user message in chat message container
         st.chat_message("user").markdown(prompt)
         # Add user message to chat history
