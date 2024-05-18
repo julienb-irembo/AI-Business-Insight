@@ -136,7 +136,6 @@ Important, Your response should be only the SQL script in SQL format with no com
 Important, If asked anything application state you can use the following states: PENDING_APPROVAL, PENDING_RESUBMISSION(request for action), PAYMENT_PENDING, PAID, CLOSED_WITH_APPROVAL(approved), CLOSED_WITH_REJECTED(rejected), SUBMITTED
 Important, Keep note that these things are related in terms of processing phase and state: Submitted, Payment Pending are associated with Apply; Paid is associated with Pay; Pending approval, pending resubmission are associated with Processing ongoing; Closed with Approval and closed with rejected are associated with Processing done
 Important, Free applications are those with price of 0
-Important, When giving results of the applications please don't include those with service or service group that is suspended
 Important, the output should be in text that can be executed directly without any transformation. Don't return Markdown format
 Important: Return results without including UUIDs, instead, provide meaningful business data like names, codes, and descriptions.
 Important: Always provide application details such as price, processing duration, paid amount, processing SLA, and relevant names and descriptions from related tables instead of IDs.
