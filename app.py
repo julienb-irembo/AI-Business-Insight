@@ -6,8 +6,8 @@ from streamlit_pills import pills
 
 
 
-# model = "gpt-3.5-turbo"
-model = "gpt-4o"
+model = "gpt-3.5-turbo"
+# model = "gpt-4o"
 gpt_base_url = None
 # model = "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF"
 # gpt_base_url = "http://localhost:1234/v1/"
@@ -20,10 +20,10 @@ openai_key = st.secrets["OpenAI_key"]
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
 logo = "img/irembo-gov.svg"
-approved = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'CLOSED_WITH_APPROVAL'; " ).values[0][0]
-pending = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'PENDING_APPROVAL'; " ).values[0][0]
-rejected = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'CLOSED_WITH_REJECTED';" ).values[0][0]
-rfa = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'PENDING_RESUBMISSION';" ).values[0][0]
+approved = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='APPROVED';" ).values[0][0]
+pending = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='PENDING';").values[0][0]
+rejected = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='REJECTED';").values[0][0]
+rfa = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='RFA';").values[0][0]
 
 
 
