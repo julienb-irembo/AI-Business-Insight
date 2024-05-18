@@ -3,6 +3,8 @@ from openai import OpenAI
 from app_config import *
 from app_access_db import *
 from streamlit_pills import pills
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 
@@ -20,10 +22,18 @@ openai_key = st.secrets["OpenAI_key"]
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
 logo = "img/irembo-gov.svg"
-approved = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='APPROVED';" ).values[0][0]
-pending = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='PENDING';").values[0][0]
-rejected = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='REJECTED';").values[0][0]
-rfa = run_query("SELECT COUNT(*) AS count FROM table_vone_application where application_state ='RFA';").values[0][0]
+
+# Cache the queries
+@st.cache_data
+def get_application_counts():
+    approved = run_query("SELECT COUNT(*) AS count FROM table_vone_application WHERE application_state = 'APPROVED'").values[0][0]
+    pending = run_query("SELECT COUNT(*) AS count FROM table_vone_application WHERE application_state = 'PENDING'").values[0][0]
+    rejected = run_query("SELECT COUNT(*) AS count FROM table_vone_application WHERE application_state = 'REJECTED'").values[0][0]
+    rfa = run_query("SELECT COUNT(*) AS count FROM table_vone_application WHERE application_state = 'RFA'").values[0][0]
+    return approved, pending, rejected, rfa
+
+# Get the cached data
+approved, pending, rejected, rfa = get_application_counts()
 
 
 
@@ -193,50 +203,56 @@ else:
 # React to user input
 if prompt := st.chat_input("Ask me any question about business at Irembo?"):
     description = None
-    with st.status('Running', expanded=True) as status:
-        # Display user message in chat message container
-        st.chat_message("user").markdown(prompt)
-        # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": prompt})
 
-        # Use the messages history to keep the context
-        response = askQuestion(question=prompt, messages=st.session_state.messages)
-        is_query = is_query(response)
-        print(is_query)
-        if not is_query:
-            response_data = response.replace('```','')
+    # Clear the chat container before displaying the new response
+    placeholder = st.empty() 
 
-            # Display assistant response in chat message container
-            assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="not_query")
-            displayAssistantMessage(assistanMsg)
+    with placeholder.container():
+        with st.status('Running', expanded=True) as status:
+            # Display user message in chat message container
+            st.chat_message("user").markdown(prompt)
+            # Add user message to chat history
+            st.session_state.messages.append({"role": "user", "content": prompt})
 
-            # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
-            status.update(label='Response of last question', state="complete", expanded=True)
-        elif is_query:
-            try:
-                response_data = run_query(response.replace('```',''))
+            # Use the messages history to keep the context
+            response = askQuestion(question=prompt, messages=st.session_state.messages)
+            is_query = is_query(response)
+            print(is_query)
+            
+            if not is_query:
+                response_data = response.replace('```','')
+
                 # Display assistant response in chat message container
-                assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="query")
+                assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="not_query")
                 displayAssistantMessage(assistanMsg)
 
                 # Add assistant response to chat history
                 st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
                 status.update(label='Response of last question', state="complete", expanded=True)
+            elif is_query:
+                try:
+                    response_data = run_query(response.replace('```',''))
+                    # Display assistant response in chat message container
+                    assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="query")
+                    displayAssistantMessage(assistanMsg)
 
-            except Exception as e:
-                # Set the message to be displayed
-                response_data = "No data was found."
+                    # Add assistant response to chat history
+                    st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
+                    status.update(label='Response of last question', state="complete", expanded=True)
 
-                # Display assistant response in chat message container
-                assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="no_data")
-                displayAssistantMessage(assistanMsg)
+                except Exception as e:
+                    # Set the message to be displayed
+                    response_data = "No data was found."
 
-                # Add assistant response to chat history
-                st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
-                status.update(label='Response of last question', state="complete", expanded=True)
-                
-                # # Display the message in the chat interface with an information icon
-                # with st.chat_message("assistant", avatar="img/favicon.png"):
-                #     st.info(info_message, icon="🔍")
+                    # Display assistant response in chat message container
+                    assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="no_data")
+                    displayAssistantMessage(assistanMsg)
+
+                    # Add assistant response to chat history
+                    st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
+                    status.update(label='Response of last question', state="complete", expanded=True)
+                    
+                    # # Display the message in the chat interface with an information icon
+                    # with st.chat_message("assistant", avatar="img/favicon.png"):
+                    #     st.info(info_message, icon="🔍")
             
