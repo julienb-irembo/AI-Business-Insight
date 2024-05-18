@@ -5,4 +5,6 @@ __pycache__
 irembo_application.db
 irembo_application_2.db
 irembo_application_3.db
+irembo_application_4.db
 tables.toml
+.streamlit/secrets.toml
