@@ -6,8 +6,8 @@ from streamlit_pills import pills
 
 
 
-model = "gpt-3.5-turbo"
-# model = "gpt-4o"
+# model = "gpt-3.5-turbo"
+model = "gpt-4o"
 gpt_base_url = None
 # model = "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF"
 # gpt_base_url = "http://localhost:1234/v1/"
