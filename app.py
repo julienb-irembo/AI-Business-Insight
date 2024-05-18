@@ -20,10 +20,10 @@ openai_key = st.secrets["OpenAI_key"]
 # SIDEBAR
 # ------------------------------------------------------------------------------------------------
 logo = "img/irembo-gov.svg"
-approved = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'CLOSED_WITH_APPROVAL' AND s.is_service_suspended = FALSE AND sg.is_group_suspended = FALSE;" ).values[0][0]
-pending = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'PENDING_APPROVAL' AND s.is_service_suspended = FALSE AND sg.is_group_suspended = FALSE;" ).values[0][0]
-rejected = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'CLOSED_WITH_REJECTED' AND s.is_service_suspended = FALSE AND sg.is_group_suspended = FALSE;" ).values[0][0]
-rfa = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'PENDING_RESUBMISSION' AND s.is_service_suspended = FALSE AND sg.is_group_suspended = FALSE;" ).values[0][0]
+approved = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'CLOSED_WITH_APPROVAL'; " ).values[0][0]
+pending = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'PENDING_APPROVAL'; " ).values[0][0]
+rejected = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'CLOSED_WITH_REJECTED';" ).values[0][0]
+rfa = run_query("SELECT COUNT(*) AS count FROM application a JOIN processing_location pl ON a.processing_location = pl.id JOIN application_service aps ON a.application_service = aps.id JOIN service s ON aps.service = s.id JOIN service_group sg ON aps.service_group = sg.id JOIN service_category sc ON aps.service_category = sc.id JOIN institution i ON aps.institution = i.id JOIN application_requester ar ON a.application_requester = ar.id JOIN application_processor ap ON a.application_processor = ap.id JOIN currency c ON a.application_currency = c.id JOIN application_channel ac ON a.application_channel = ac.id JOIN application_state ast ON a.application_state = ast.id JOIN application_processing_phase apph ON a.application_processing_phase = apph.id JOIN payment_transaction pt ON a.payment_transaction = pt.id WHERE ast.state_code = 'PENDING_RESUBMISSION';" ).values[0][0]
 
 
 
@@ -113,9 +113,11 @@ def askQuestion(model=model, question='', messages=[]):
         return completion.choices[0].message.content
 
 class AssistantMessage:
-    def __init__(self, sql: str = "", response_data=None):
+    def __init__(self, prompt:str ="", sql: str = "", message_type:str = "" , response_data=None):
         self.sql = sql
         self.response_data = response_data
+        self.prompt = prompt
+        self.message_type = message_type
 
     def to_dict(self):
         if isinstance(self.response_data, DataFrame):
@@ -124,6 +126,8 @@ class AssistantMessage:
             response_data = self.response_data
         return {
             "sql": self.sql,
+            "prompt": self.prompt,
+            "message_type": self.message_type,
             "response_data": response_data
         }
 
@@ -134,6 +138,8 @@ class AssistantMessage:
             response_data = DataFrame.from_dict(response_data)
         return AssistantMessage(
             sql=data.get("sql", ""),
+            message_type=data.get("message_type", ""),
+            prompt=data.get("prompt", ""),
             response_data=response_data
         )
     
@@ -144,18 +150,25 @@ def rename_columns(df):
     df.columns = [format_column_name(col) for col in df.columns]
     return df
 
-def displayAssistantMessage(assistantMessage: AssistantMessage, prompt: str):
+def displayAssistantMessage(assistantMessage: AssistantMessage):
     with st.chat_message("assistant", avatar="img/favicon.png"):
-        response = rename_columns(assistantMessage.response_data)
-        if assistantMessage.response_data.columns.size == 1:
-            st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
-        elif isinstance(assistantMessage.response_data, str):
-            st.write(response)
-        else:
-            st.write(response)
+        if assistantMessage.message_type == "not_query":
+            st.info(assistantMessage.response_data)
+
+        elif assistantMessage.message_type == "no_data":
+            st.info(assistantMessage.response_data, icon="🔍")
         
-        if 'trend' in prompt.lower() or 'chart' in prompt.lower():
-            st.bar_chart(response, x=response.columns[0], y=response.columns[1])
+        else:
+            if assistantMessage.response_data.columns.size == 1:
+                st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
+            elif isinstance(assistantMessage.response_data, str):
+                response = rename_columns(assistantMessage.response_data)
+                st.write(response)
+            else:
+                response = rename_columns(assistantMessage.response_data)
+                st.write(response)
+                if 'trend' in assistantMessage.prompt.lower() or 'chart' in assistantMessage.prompt.lower() :
+                    st.bar_chart(response, x=response.columns[0], y=response.columns[1])
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -190,32 +203,39 @@ if prompt := st.chat_input("Ask me any question about business at Irembo?"):
         is_query = is_query(response)
         print(is_query)
         if not is_query:
-            with st.chat_message("assistant", avatar="img/favicon.png"):
-                st.markdown(response)
+            response_data = response.replace('```','')
+
             # Display assistant response in chat message container
-            assistanMsg = AssistantMessage(response_data=response)
+            assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="not_query")
+            displayAssistantMessage(assistanMsg)
+
+            # Add assistant response to chat history
             st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
             status.update(label='Response of last question', state="complete", expanded=True)
         elif is_query:
             try:
                 response_data = run_query(response.replace('```',''))
                 # Display assistant response in chat message container
-                assistanMsg = AssistantMessage(response_data=response_data)
-                displayAssistantMessage(assistanMsg, prompt)
+                assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="query")
+                displayAssistantMessage(assistanMsg)
+
                 # Add assistant response to chat history
                 st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
                 status.update(label='Response of last question', state="complete", expanded=True)
+
             except Exception as e:
                 # Set the message to be displayed
-                info_message = "No data was found."
-                
-                # Display the message in the chat interface with an information icon
-                with st.chat_message("assistant", avatar="img/favicon.png"):
-                    st.info(info_message, icon="🔍")
-                
-                # Create an AssistantMessage object and append it to the session state messages
-                assistanMsg = AssistantMessage(response_data=info_message)
+                response_data = "No data was found."
+
+                # Display assistant response in chat message container
+                assistanMsg = AssistantMessage(sql=response, prompt=prompt, response_data=response_data, message_type="no_data")
+                displayAssistantMessage(assistanMsg)
+
+                # Add assistant response to chat history
                 st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
-                
-                # Update the status label to indicate an information state
                 status.update(label='Response of last question', state="complete", expanded=True)
+                
+                # # Display the message in the chat interface with an information icon
+                # with st.chat_message("assistant", avatar="img/favicon.png"):
+                #     st.info(info_message, icon="🔍")
+            
