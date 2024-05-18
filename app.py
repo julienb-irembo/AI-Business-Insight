@@ -136,16 +136,26 @@ class AssistantMessage:
             sql=data.get("sql", ""),
             response_data=response_data
         )
+    
+def format_column_name(column_name):
+    return column_name.replace("_", " ").title()
+
+def rename_columns(df):
+    df.columns = [format_column_name(col) for col in df.columns]
+    return df
 
 def displayAssistantMessage(assistantMessage: AssistantMessage, prompt: str):
     with st.chat_message("assistant", avatar="img/favicon.png"):
-        if isinstance(assistantMessage.response_data, str):
-            st.write(assistantMessage.response_data)
+        response = rename_columns(assistantMessage.response_data)
+        if assistantMessage.response_data.columns.size == 1:
+            st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
+        elif isinstance(assistantMessage.response_data, str):
+            st.write(response)
         else:
-            st.write(assistantMessage.response_data)
+            st.write(response)
         
         if 'trend' in prompt.lower() or 'chart' in prompt.lower():
-            st.bar_chart(assistantMessage.response_data, x=assistantMessage.response_data.columns[0], y=assistantMessage.response_data.columns[1])
+            st.bar_chart(response, x=response.columns[0], y=response.columns[1])
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -196,9 +206,16 @@ if prompt := st.chat_input("Ask me any question about business at Irembo?"):
                 st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
                 status.update(label='Response of last question', state="complete", expanded=True)
             except Exception as e:
-                error_message = "Am sorry I can't process your request right now. Please ask me another question."
+                # Set the message to be displayed
+                info_message = "No data was found."
+                
+                # Display the message in the chat interface with an information icon
                 with st.chat_message("assistant", avatar="img/favicon.png"):
-                    st.error(error_message)
-                assistanMsg = AssistantMessage(response_data=error_message)
+                    st.info(info_message, icon="🔍")
+                
+                # Create an AssistantMessage object and append it to the session state messages
+                assistanMsg = AssistantMessage(response_data=info_message)
                 st.session_state.messages.append({"role": "assistant", "content": assistanMsg.to_dict()})
-                status.update(label='Error', state="error", expanded=True)
+                
+                # Update the status label to indicate an information state
+                status.update(label='Response of last question', state="complete", expanded=True)

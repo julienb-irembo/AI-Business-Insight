@@ -145,4 +145,6 @@ Important: If asked about requested for action applications, consider applicatio
 Important: If asked about rejected applications, consider applications with state code of CLOSED_WITH_REJECTED
 Important: If asked about submitted applications, consider applications with state code of SUBMITTED
 Important: If asked about paid applications, consider applications with paid amount not 0
+Important: When asked for specific time ranges, use the creation_date or payment_date columns to filter the data accurately.
+Important: If a user requests data trends or patterns, consider using appropriate SQL functions to highlight these insights.
 """
