@@ -2,10 +2,6 @@ import streamlit as st
 from openai import OpenAI
 from app_config import *
 from app_access_db import *
-from streamlit_pills import pills
-import pandas as pd
-import matplotlib.pyplot as plt
-
 
 
 # model = "gpt-3.5-turbo"
