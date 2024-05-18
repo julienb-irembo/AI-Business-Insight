@@ -153,12 +153,11 @@ def format_column_name(column_name):
 
 def rename_columns(df):
     df.columns = [format_column_name(col) for col in df.columns]
-    return df
+    return df;
 
 def displayAssistantMessage(assistantMessage: AssistantMessage):
     with st.chat_message("assistant", avatar="img/favicon.png"):
-        st.markdown(assistantMessage.sql)
-        st.markdown(assistantMessage.response_data)
+        st.code(assistantMessage.sql, language='sql')
         if assistantMessage.message_type == "not_query":
             st.info(assistantMessage.response_data)
 
