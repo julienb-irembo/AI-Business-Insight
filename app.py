@@ -181,7 +181,7 @@ for message in st.session_state.messages:
             st.markdown(message["content"])
     elif message["role"] == "assistant":
         assistantMessage = AssistantMessage.from_dict(message["content"])
-        displayAssistantMessage(assistantMessage, '')
+        displayAssistantMessage(assistantMessage)
 
 # Displaying chat description
 if not st.session_state.messages:
