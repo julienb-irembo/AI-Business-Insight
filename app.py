@@ -27,7 +27,6 @@ rfa = run_query("SELECT COUNT(*) AS count FROM table_vone_application where appl
 
 
 
-
 def dashboard_cards():
     st.markdown(
         f"""
@@ -152,6 +151,7 @@ def rename_columns(df):
 
 def displayAssistantMessage(assistantMessage: AssistantMessage):
     with st.chat_message("assistant", avatar="img/favicon.png"):
+        st.markdown(assistantMessage.sql)
         if assistantMessage.message_type == "not_query":
             st.info(assistantMessage.response_data)
 
