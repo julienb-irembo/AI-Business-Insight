@@ -199,7 +199,9 @@ def displayAssistantMessage(assistantMessage: AssistantMessage):
         elif assistantMessage.message_type == "no_data":
             st.info(assistantMessage.response_data, icon="🔍")
         else:
-            st.code(assistantMessage.sql, language='sql')
+            show_sql = st.checkbox("Show SQL Query", value=False, key=f"show_sql_{assistantMessage.prompt}")
+            if show_sql:
+                st.code(assistantMessage.sql, language='sql')
             if assistantMessage.response_data.columns.size == 1 and assistantMessage.response_data.values[0].size == 1:
                 st.metric(label=assistantMessage.response_data.columns[0], value=f'{assistantMessage.response_data.values[0][0]}')
             elif isinstance(assistantMessage.response_data, str):
