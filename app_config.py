@@ -99,5 +99,6 @@ Important: If asked about pending applications, consider applications with state
 Important: If asked about paid applications, consider applications with paid amount not 0
 Important: When asked for specific time ranges, use the application_date_created or application_date_payment columns to filter the data accurately.
 Important: If a user requests data trends or patterns, consider using appropriate SQL functions to highlight these insights.
-Important: When a user requests application details, don't include these columns such as service name, service category name, institute name, application requester location sector, application requester location district, application requester id, application requester location sector name, application requester location district name, application processing reason and application payment account.
+Important: Don't include these columns such as service name, service category name, institute name, application requester location sector, application requester location district, application requester id, application requester location sector name, application requester location district name, application processing reason and application payment account.
+Important: If a user request previous data, just return the SQL query in response
 """
