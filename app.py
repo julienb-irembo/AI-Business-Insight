@@ -190,6 +190,9 @@ def displayAssistantMessage(assistantMessage: AssistantMessage):
             st.info(assistantMessage.response_data, icon="🔍")
         
         else:
+            show_sql = st.checkbox("Show SQL Query", value=False, key=f"show_sql_{assistantMessage.prompt}")
+            if show_sql:
+                st.code(assistantMessage.sql, language='sql')
             # Displaye Metric if the size of the result is only on columna and one value
             if assistantMessage.response_data.columns.size == 1 and len(assistantMessage.response_data.values) ==1 :
                 st.metric(label=assistantMessage.response_template, value=f'{assistantMessage.response_data.values[0][0]}')
@@ -265,7 +268,7 @@ if prompt := st.chat_input("Ask me any question about business at Irembo?"):
             response = askQuestion(question=prompt, messages=st.session_state.messages)
             print(f" LLM Reponse is {response}")
 
-            print(f"reponse with no escape :  {response.replace('```','').replace('\n',' ').replace('\t','  ').replace('\\n','').replace('\\t',' ').replace('\\',' ')}")
+            # print(f"reponse with no escape :  {response.replace('```','').replace('\n',' ').replace('\t','  ').replace('\\n','').replace('\\t',' ').replace('\\',' ')}")
             response_object = json.loads(response.replace('```','').replace('\n',' ').replace('\t','  ').replace('\\n','  ').replace('\\t','  ').replace('\\',' '))
             print(f" LLM Reponse Object is {response_object}")
 
