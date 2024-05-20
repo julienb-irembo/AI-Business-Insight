@@ -8,3 +8,4 @@ irembo_application_3.db
 irembo_application_4.db
 tables.toml
 .streamlit/secrets.toml
+.vscode/
