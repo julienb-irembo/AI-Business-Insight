@@ -188,11 +188,15 @@ def displayAssistantMessage(assistantMessage: AssistantMessage):
 
         elif assistantMessage.message_type == "no_data":
             st.info(assistantMessage.response_data, icon="🔍")
+
+        elif assistantMessage.chart == "table":
+            st.write(response, unsafe_allow_html=True)
         
         else:
             #show_sql = st.checkbox("Show SQL Query", value=False, key=f"show_sql_{assistantMessage.prompt}")
             #if show_sql:
             #    st.code(assistantMessage.sql, language='sql')
+            st.code(assistantMessage.sql, language='sql')
             # Displaye Metric if the size of the result is only on columna and one value
             if assistantMessage.response_data.columns.size == 1 and len(assistantMessage.response_data.values) ==1 :
                 st.metric(label=assistantMessage.response_template, value=f'{assistantMessage.response_data.values[0][0]}')
