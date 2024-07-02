@@ -10,8 +10,8 @@ import altair as alt
 
 
 
-model = "gpt-3.5-turbo"
-#model = "gpt-4o"
+#model = "gpt-3.5-turbo"
+model = "gpt-4o"
 # model = "Irembo Data Insights"
 gpt_base_url = None
 # model = "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF"
