@@ -9,38 +9,45 @@ DB_PASS = st.secrets["DB_PASS"]
 DB_HOST = st.secrets["DB_HOST"]
 DB_PORT = st.secrets["DB_PORT"]
 
-
-#check if text is a query with sqlparse
+# check if text is a query with sqlparse
 def is_query(text):
     parsed = sqlparse.parse(text)
     if parsed and parsed[0].get_type() == 'SELECT':
         return True
     else:
         return False
-    
-  
+
 def run_query(query=''):
+    conn = None  # Initialize conn before try block
     try:
-        conn = psycopg2.connect(database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS,
-        host=DB_HOST,
-        port=DB_PORT)
+        conn = psycopg2.connect(
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS,
+            host=DB_HOST,
+            port=DB_PORT
+        )
         print("Database connected successfully")
-    except:
-        print("Database not connected successfully")
         
-    clean_query = query.replace('```','')
-    print(f"clean_query  \n   {clean_query}")
-    cursor = conn.cursor()
-    cursor.execute(clean_query)     
-    print(f"Cursor Description \n   {cursor.description}")
-
-    df = DataFrame(cursor.fetchall())
-    print(f"DF.head before column \n {df.head()}")
-    df.columns = [i[0] for i in cursor.description]
-
-    # print(f'Field Names : {field_names}')
-    print(f"DF.head after column \n {df.head()}")
-    conn.close()
-    return df
+        clean_query = query.replace('```', '')
+        print(f"clean_query  \n   {clean_query}")
+        
+        cursor = conn.cursor()
+        cursor.execute(clean_query)     
+        print(f"Cursor Description \n   {cursor.description}")
+        
+        df = DataFrame(cursor.fetchall())
+        print(f"DF.head before column \n {df.head()}")
+        
+        df.columns = [i[0] for i in cursor.description]
+        print(f"DF.head after column \n {df.head()}")
+        
+        return df
+        
+    except psycopg2.Error as e:
+        print(f"Database error: {e}")
+        raise  # Re-raise the exception so the caller knows something went wrong
+        
+    finally:
+        if conn is not None:
+            conn.close()
